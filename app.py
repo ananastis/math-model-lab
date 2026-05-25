@@ -106,8 +106,13 @@ if st.sidebar.button("Змоделювати систему", type="primary"):
             with col_plot2:
                 st.markdown("**Змодельований стан (y')**")
                 fig_model = go.Figure(data=[go.Surface(z=Y_model.T, x=x1_grid, y=x2_grid, colorscale='Plasma')])
-                fig_model.update_layout(scene=dict(zaxis=dict(range=[z_min, z_max])),
-                                        margin=dict(l=0, r=0, b=0, t=0), height=500)
+                fig_model.update_layout(
+    scene=dict(
+        zaxis=dict(range=[np.min(Y_exact)-0.2, np.max(Y_exact)+0.2]) # Обмежуємось діапазоном еталону
+    ),
+    margin=dict(l=0, r=0, b=0, t=0), 
+    height=500
+)
                 st.plotly_chart(fig_model, use_container_width=True)
 
         except Exception as e:
