@@ -1,5 +1,7 @@
 """
-model.py — Математичне ядро лабораторної роботи 5
+Лабораторна робота 3
+Робоча група 5: Булига Анастасія та Носкова Каріна
+model.py — математичне ядро лабораторної роботи 
 Хвильове рівняння в R², простір [0,T]
 L(∂s) = ∂²t − c²(∂²x1 + ∂²x2)
 G(s)  = H(t − r/c) / (2πc√(c²t² − r²))
@@ -8,9 +10,7 @@ G(s)  = H(t − r/c) / (2πc√(c²t² − r²))
 import numpy as np
 
 
-# ──────────────────────────────────────────────
-# 1. ТЕСТОВІ ФУНКЦІЇ y(x1, x2, t)
-# ──────────────────────────────────────────────
+# ТЕСТОВІ ФУНКЦІЇ y(x1, x2, t)
 
 def y_sin_cos(x1, x2, t, c):
     """sin(x1)·cos(x2)·cos(c·t)  — точно задовольняє L(y)=0"""
@@ -36,9 +36,7 @@ TEST_FUNCTIONS = {
 }
 
 
-# ──────────────────────────────────────────────
-# 2. ФУНКЦІЯ ГРІНА  G(s, s')
-# ──────────────────────────────────────────────
+# ФУНКЦІЯ ГРІНА  G(s, s')
 
 def green(x1, x2, t, x1s, x2s, ts, c, eps=1e-3):
     # Примусово конвертуємо у numpy (вирішує 'float has no ndim')
@@ -61,9 +59,7 @@ def green(x1, x2, t, x1s, x2s, ts, c, eps=1e-3):
         return out
 
 
-# ──────────────────────────────────────────────
-# 3. ТОЧКИ СПОСТЕРЕЖЕНЬ  (початкові + крайові)
-# ──────────────────────────────────────────────
+# ТОЧКИ СПОСТЕРЕЖЕНЬ  (початкові + крайові)
 
 def make_observations(fn, c, x1a, x1b, x2a, x2b, T, R0, Rg):
     obs = []
@@ -93,9 +89,7 @@ def make_observations(fn, c, x1a, x1b, x2a, x2b, T, R0, Rg):
     return obs, Y
 
 
-# ──────────────────────────────────────────────
-# 4. ТОЧКИ ДЖЕРЕЛ  s'm  (зовнішня область t < 0)
-# ──────────────────────────────────────────────
+# ТОЧКИ ДЖЕРЕЛ  s'm  (зовнішня область t < 0)
 
 def make_sources(x1a, x1b, x2a, x2b, M, c=1.0, T=1.0):
     r_max = np.sqrt((x1b - x1a)**2 + (x2b - x2a)**2)
@@ -118,9 +112,7 @@ def make_sources(x1a, x1b, x2a, x2b, M, c=1.0, T=1.0):
                 srcs.append({"x1": x1, "x2": x2, "t": float(ts)})
     return srcs[:M]
 
-# ──────────────────────────────────────────────
-# 5. МАТРИЦЯ A  та псевдообернення
-# ──────────────────────────────────────────────
+# МАТРИЦЯ A  та псевдообернення
 
 def build_matrix(obs, srcs, c):
     """
@@ -159,13 +151,7 @@ def solve(A, Y, lam=0.01):
 
 
 def reconstruct(x1_grid, x2_grid, t_val, srcs, u, c):
-    """
-    y'(x1, x2, t) = Σ_m  G(s, s'm) · u_m
-
-    x1_grid, x2_grid — 1-D масиви координат сітки
-    t_val            — момент часу
-    Повертає матрицю y' розміром len(x1_grid) × len(x2_grid)
-    """
+  
     X1, X2 = np.meshgrid(x1_grid, x2_grid, indexing='ij')
     Yp = np.zeros_like(X1)
     for m, s in enumerate(srcs):
@@ -173,9 +159,7 @@ def reconstruct(x1_grid, x2_grid, t_val, srcs, u, c):
     return Yp
 
 def accuracy(Y_exact, Y_model):
-    """
-    Повертає: norm_abs, norm_rel (%), max_err
-    """
+    
     diff     = Y_exact - Y_model
     norm_abs = np.sqrt(np.mean(diff**2))        # RMS-норма
     norm_ref = np.sqrt(np.mean(Y_exact**2))
