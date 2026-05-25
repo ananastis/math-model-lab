@@ -107,15 +107,12 @@ if st.sidebar.button("Змоделювати систему", type="primary"):
                 st.markdown("**Змодельований стан (y')**")
                 fig_model = go.Figure(data=[go.Surface(z=Y_model.T, x=x1_grid, y=x2_grid, colorscale='Plasma')])
                 fig_model.update_layout(
-    scene=dict(
-        zaxis=dict(range=[z_min, z_max]), # Це "відріже" шум, що виходить за межі
-    ),
-    margin=dict(l=0, r=0, b=0, t=0), 
-    height=500
-)
-    margin=dict(l=0, r=0, b=0, t=0), 
-    height=500
-)
+                    scene=dict(
+                        zaxis=dict(range=[z_min, z_max]) # Це "відріже" шум
+                    ),
+                    margin=dict(l=0, r=0, b=0, t=0), 
+                    height=500
+                )
                 st.plotly_chart(fig_model, use_container_width=True)
 
         except Exception as e:
