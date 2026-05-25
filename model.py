@@ -40,16 +40,21 @@ TEST_FUNCTIONS = {
 # 2. ФУНКЦІЯ ГРІНА  G(s, s')
 # ──────────────────────────────────────────────
 
-def green(x1, x2, t, x1s, x2s, ts, c, eps=1e-3):  # eps збільшено!
+def green(x1, x2, t, x1s, x2s, ts, c, eps=1e-3):
+    # Примусово конвертуємо у numpy (вирішує 'float has no ndim')
+    x1 = np.asarray(x1, dtype=float)
+    x2 = np.asarray(x2, dtype=float)
+    t  = np.asarray(t,  dtype=float)
+
     dt   = t - float(ts)
     r2   = (x1 - float(x1s))**2 + (x2 - float(x2s))**2
     disc = c**2 * dt**2 - r2
 
-    if x1.ndim == 0:
-        if float(dt) <= 0 or float(disc) <= eps:  # eps замість 1e-12
+    if x1.ndim == 0:               # scalar
+        if float(dt) <= 0 or float(disc) <= eps:
             return 0.0
         return float(1.0 / (2.0 * np.pi * c * np.sqrt(float(disc))))
-    else:
+    else:                          # array
         mask = (dt > 0) & (disc > eps)
         out  = np.zeros(x1.shape, dtype=float)
         out[mask] = 1.0 / (2.0 * np.pi * c * np.sqrt(disc[mask]))
