@@ -105,26 +105,24 @@ def make_observations(fn, c, x1a, x1b, x2a, x2b, T, R0, Rg):
 # 4. ТОЧКИ ДЖЕРЕЛ  s'm  (зовнішня область t < 0)
 # ──────────────────────────────────────────────
 
-def make_sources(x1a, x1b, x2a, x2b, M, T_ext=3.0):
-    """
-    Джерела ПОЗА просторовою областю + різні часові шари
-    """
+def make_sources(x1a, x1b, x2a, x2b, M, c=1.0, T=1.0):
+    r_max = np.sqrt((x1b - x1a)**2 + (x2b - x2a)**2)
+    T_ext = r_max / c + T + 1.0  # автоматично правильний T_ext
+    
     srcs = []
     n = max(2, int(np.ceil(np.sqrt(M))))
     
-    # Розширена просторова область (джерела ззовні)
-    margin = 1.5
+    margin = 0.5
     x1s = np.linspace(x1a - margin, x1b + margin, n)
     x2s = np.linspace(x2a - margin, x2b + margin, n)
     
-    t_layers = np.linspace(-T_ext, -0.5, 4)  # 4 часових шари
+    t_layers = np.linspace(-T_ext, -T_ext * 0.3, 4)
     
     for ts in t_layers:
         for x1 in x1s:
             for x2 in x2s:
                 if len(srcs) >= M:
                     return srcs[:M]
-                # Перевірка: джерело НЕ повинно бути сингулярним при t_plot
                 srcs.append({"x1": x1, "x2": x2, "t": ts})
     return srcs[:M]
 
