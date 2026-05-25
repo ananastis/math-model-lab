@@ -110,7 +110,7 @@ def make_observations(fn, c, x1a, x1b, x2a, x2b, T, R0, Rg):
 # 4. ТОЧКИ ДЖЕРЕЛ  s'm  (зовнішня область t < 0)
 # ──────────────────────────────────────────────
 
-def make_sources(x1a, x1b, x2a, x2b, M, T_ext=3.0):
+def make_sources(x1a, x1b, x2a, x2b, M, T_ext=5.0):
     """
     Розміщує M точок джерел у зовнішній ЧАСОВІЙ області (t = -T_ext).
 
@@ -124,8 +124,8 @@ def make_sources(x1a, x1b, x2a, x2b, M, T_ext=3.0):
     """
     n    = max(2, int(np.ceil(np.sqrt(M))))
     srcs = []
-    dx1  = (x1b - x1a) * 0.2          # невеликий відступ за межі
-    dx2  = (x2b - x2a) * 0.05
+    dx1  = (x1b - x1a) * 0.3          # невеликий відступ за межі
+    dx2  = (x2b - x2a) * 0.3
     x1s  = np.linspace(x1a - dx1, x1b + dx1, n)
     x2s  = np.linspace(x2a - dx2, x2b + dx2, n)
     for x1 in x1s:
@@ -156,18 +156,24 @@ def build_matrix(obs, srcs, c):
     return A
 
 
-def solve(A, Y, lam=1e-6):
+def solve(A, Y, lam=1e-2):
     """
     Псевдообернення: A·u = Y
     Метод: регуляризований МНК через розширену систему
       [A; √λ·I] u = [Y; 0]  →  мінімізує ‖Au-Y‖² + λ‖u‖²
     Повертає: u, rank, residual_norm
     """
-    N, M = A.shape
-    # Розширена система Тихонова
-    A_ext = np.vstack([A, np.sqrt(lam) * np.eye(M)])
-    Y_ext = np.concatenate([Y, np.zeros(M)])
+   y_max = np.max(np.abs(Y))
+    Y_norm = Y / y_max if y_max > 1e-10 else Y
+    
+    A_ext = np.vstack([A, np.sqrt(lam) * np.eye(A.shape[1])])
+    Y_ext = np.concatenate([Y_norm, np.zeros(A.shape[1])])
+    
     u, _, rank, _ = np.linalg.lstsq(A_ext, Y_ext, rcond=None)
+    
+    # Повертаємо масштаб назад
+    u = u * y_max 
+    
     residual = np.linalg.norm(A @ u - Y)
     return u, rank, residual
 
