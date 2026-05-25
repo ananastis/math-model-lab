@@ -111,25 +111,27 @@ def make_observations(fn, c, x1a, x1b, x2a, x2b, T, R0, Rg):
 
 def make_sources(x1a, x1b, x2a, x2b, M, c=1.0, T=1.0):
     r_max = np.sqrt((x1b - x1a)**2 + (x2b - x2a)**2)
-    T_ext = r_max / c + T + 1.0  # автоматично правильний T_ext
+    T_ext = r_max / c + T + 1.0
     
     srcs = []
-    n = max(2, int(np.ceil(np.sqrt(M))))
+    # Розбиваємо M рівно: n_t часових шарів × n_s² просторових точок
+    n_t = 4
+    n_s = max(2, int(np.ceil(np.sqrt(M / n_t))))
     
-    margin = 0.5
-    x1s = np.linspace(x1a - margin, x1b + margin, n)
-    x2s = np.linspace(x2a - margin, x2b + margin, n)
+    # Просторова сітка всередині області (без margin)
+    x1s = np.linspace(x1a, x1b, n_s)
+    x2s = np.linspace(x2a, x2b, n_s)
     
-    t_layers = np.linspace(-T_ext, -T_ext * 0.3, 4)
+    # Часові шари: рівномірно від -T_ext до -0.1
+    t_layers = np.linspace(-T_ext, -0.1, n_t)
     
     for ts in t_layers:
         for x1 in x1s:
             for x2 in x2s:
                 if len(srcs) >= M:
                     return srcs[:M]
-                srcs.append({"x1": x1, "x2": x2, "t": ts})
+                srcs.append({"x1": x1, "x2": x2, "t": float(ts)})
     return srcs[:M]
-
 
 # ──────────────────────────────────────────────
 # 5. МАТРИЦЯ A  та псевдообернення
