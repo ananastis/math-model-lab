@@ -49,7 +49,7 @@ if st.sidebar.button("Змоделювати систему", type="primary"):
         try:
             # 1. Формування спостережень та джерел
             obs, Y_obs = model.make_observations(func, c, x1a, x1b, x2a, x2b, T, R0, Rg)
-            srcs = model.make_sources(x1a, x1b, x2a, x2b, M)
+            srcs = model.make_sources(x1a, x1b, x2a, x2b, M, c=c, T=T)
 
             # 2. Побудова матриці та розв'язання
             A = model.build_matrix(obs, srcs, c)
