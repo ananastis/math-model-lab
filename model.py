@@ -156,25 +156,15 @@ def build_matrix(obs, srcs, c):
     return A
 
 
-def solve(A, Y, lam=1e-2):
-    """
-    Псевдообернення: A·u = Y
-    Метод: регуляризований МНК через розширену систему
-    """
-    y_max = np.max(np.abs(Y))
-    Y_norm = Y / y_max if y_max > 1e-10 else Y
-    
-    # Виправляємо відступи тут (має бути рівно 4 пробіли)
-    A_ext = np.vstack([A, np.sqrt(lam) * np.eye(A.shape[1])])
-    Y_ext = np.concatenate([Y_norm, np.zeros(A.shape[1])])
-    
-    u, _, rank, _ = np.linalg.lstsq(A_ext, Y_ext, rcond=None)
-    
-    # Повертаємо масштаб назад
-    u = u * y_max 
+def solve(A, Y, lam=0.1): # Збільшили lam для більшої стабільності
+    # Використовуємо SVD для більш стабільного розв'язку
+    U, s, Vt = np.linalg.svd(A, full_matrices=False)
+    # Фільтрація малих сингулярних чисел (регуляризація)
+    s_inv = s / (s**2 + lam)
+    u = Vt.T @ (s_inv * (U.T @ Y))
     
     residual = np.linalg.norm(A @ u - Y)
-    return u, rank, residual
+    return u, len(s), residual
 
 
 def reconstruct(x1_grid, x2_grid, t_val, srcs, u, c):
