@@ -147,14 +147,21 @@ def build_matrix(obs, srcs, c):
     return A
 
 
-def solve(A, Y, lam=0.1):
-    cond = np.linalg.cond(A)
-    print(f"Число обумовленості: {cond:.2e}")  # якщо > 1e10 — проблема
-    # Використовуємо SVD для більш стабільного розв'язку
-    U, s, Vt = np.linalg.svd(A, full_matrices=False)
-    # Фільтрація малих сингулярних чисел (регуляризація)
+def solve(A, Y, lam=0.01):
+    # Нормалізація стовпців (усуває різницю масштабів між джерелами)
+    col_norms = np.linalg.norm(A, axis=0)
+    col_norms[col_norms < 1e-12] = 1.0  # захист від нулів
+    A_norm = A / col_norms
+    
+    cond = np.linalg.cond(A_norm)
+    print(f"Число обумовленості (після норм.): {cond:.2e}")
+    
+    U, s, Vt = np.linalg.svd(A_norm, full_matrices=False)
     s_inv = s / (s**2 + lam)
-    u = Vt.T @ (s_inv * (U.T @ Y))
+    u_norm = Vt.T @ (s_inv * (U.T @ Y))
+    
+    # Повертаємо до оригінального масштабу
+    u = u_norm / col_norms
     
     residual = np.linalg.norm(A @ u - Y)
     return u, len(s), residual
