@@ -91,8 +91,8 @@ if st.sidebar.button("Змоделювати систему", type="primary"):
             # 3D Графіки (ВИПРАВЛЕНО: додано .T для правильного відображення осей Plotly)
             st.subheader(f"Просторово-часовий стан при t = {t_plot:.2f}")
 
-            z_min = min(np.min(Y_exact), np.min(Y_model)) - 0.1
-            z_max = max(np.max(Y_exact), np.max(Y_model)) + 0.1
+            z_min = min(np.min(Y_exact), np.min(Y_model)) - 0.5
+            z_max = max(np.max(Y_exact), np.max(Y_model)) + 0.5
 
             col_plot1, col_plot2 = st.columns(2)
 
@@ -108,8 +108,11 @@ if st.sidebar.button("Змоделювати систему", type="primary"):
                 fig_model = go.Figure(data=[go.Surface(z=Y_model.T, x=x1_grid, y=x2_grid, colorscale='Plasma')])
                 fig_model.update_layout(
     scene=dict(
-        zaxis=dict(range=[np.min(Y_exact)-0.2, np.max(Y_exact)+0.2]) # Обмежуємось діапазоном еталону
+        zaxis=dict(range=[z_min, z_max]), # Це "відріже" шум, що виходить за межі
     ),
+    margin=dict(l=0, r=0, b=0, t=0), 
+    height=500
+)
     margin=dict(l=0, r=0, b=0, t=0), 
     height=500
 )
