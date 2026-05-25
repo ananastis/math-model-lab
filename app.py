@@ -115,6 +115,17 @@ if st.sidebar.button("Змоделювати систему", type="primary"):
                 )
                 st.plotly_chart(fig_model, use_container_width=True)
 
+            # Графік похибки
+            st.markdown("---")
+            st.subheader("Поле похибки (y - y')")
+            diff = Y_exact - Y_model
+            fig_err = go.Figure(data=[go.Surface(
+                z=diff.T, x=x1_grid, y=x2_grid, colorscale='RdBu'
+            )])
+            fig_err.update_layout(margin=dict(l=0, r=0, b=0, t=0), height=500)
+            st.plotly_chart(fig_err, use_container_width=True)
+            
+
         except Exception as e:
             st.error(f"Виникла помилка під час обчислень: {e}")
 
