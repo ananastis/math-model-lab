@@ -110,29 +110,20 @@ def make_observations(fn, c, x1a, x1b, x2a, x2b, T, R0, Rg):
 # 4. ТОЧКИ ДЖЕРЕЛ  s'm  (зовнішня область t < 0)
 # ──────────────────────────────────────────────
 
-def make_sources(x1a, x1b, x2a, x2b, M, T_ext=5.0):
-    """
-    Розміщує M точок джерел у зовнішній ЧАСОВІЙ області (t = -T_ext).
-
-    Відповідно до п.2.2 методики Стояна:
-      – моделюючі фактори u⁰(s) визначені при t < 0 (для початкових умов)
-      – джерела розміщені рівномірно всередині просторової області
-      – T_ext достатньо велике щоб конус G охоплював усі точки спостережень:
-          c · T_ext > r_max = √2 · max(|x1|, |x2|)
-
-    За умов x1,x2 ∈ [-2,2], c=1: T_ext ≥ √2·2 ≈ 2.83  →  T_ext=3.0
-    """
-    n    = max(2, int(np.ceil(np.sqrt(M))))
+def make_sources(x1a, x1b, x2a, x2b, M, T_ext=3.0):
     srcs = []
-    dx1  = (x1b - x1a) * 0.3          # невеликий відступ за межі
-    dx2  = (x2b - x2a) * 0.3
-    x1s  = np.linspace(x1a - dx1, x1b + dx1, n)
-    x2s  = np.linspace(x2a - dx2, x2b + dx2, n)
-    for x1 in x1s:
-        for x2 in x2s:
-            if len(srcs) >= M:
-                break
-            srcs.append({"x1": x1, "x2": x2, "t": -T_ext})
+    n_space = max(2, int(np.ceil(np.sqrt(M / 3))))
+    t_layers = [-T_ext, -T_ext * 0.5, -T_ext * 0.2]  # 3 часових шари
+    
+    x1s = np.linspace(x1a, x1b, n_space)
+    x2s = np.linspace(x2a, x2b, n_space)
+    
+    for t_src in t_layers:
+        for x1 in x1s:
+            for x2 in x2s:
+                if len(srcs) >= M:
+                    break
+                srcs.append({"x1": x1, "x2": x2, "t": t_src})
     return srcs[:M]
 
 
@@ -156,7 +147,9 @@ def build_matrix(obs, srcs, c):
     return A
 
 
-def solve(A, Y, lam=0.1): # Збільшили lam для більшої стабільності
+def solve(A, Y, lam=0.1):
+    cond = np.linalg.cond(A)
+    print(f"Число обумовленості: {cond:.2e}")  # якщо > 1e10 — проблема
     # Використовуємо SVD для більш стабільного розв'язку
     U, s, Vt = np.linalg.svd(A, full_matrices=False)
     # Фільтрація малих сингулярних чисел (регуляризація)
