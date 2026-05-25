@@ -160,12 +160,11 @@ def solve(A, Y, lam=1e-2):
     """
     Псевдообернення: A·u = Y
     Метод: регуляризований МНК через розширену систему
-      [A; √λ·I] u = [Y; 0]  →  мінімізує ‖Au-Y‖² + λ‖u‖²
-    Повертає: u, rank, residual_norm
     """
-   y_max = np.max(np.abs(Y))
+    y_max = np.max(np.abs(Y))
     Y_norm = Y / y_max if y_max > 1e-10 else Y
     
+    # Виправляємо відступи тут (має бути рівно 4 пробіли)
     A_ext = np.vstack([A, np.sqrt(lam) * np.eye(A.shape[1])])
     Y_ext = np.concatenate([Y_norm, np.zeros(A.shape[1])])
     
