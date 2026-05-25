@@ -39,7 +39,7 @@ TEST_FUNCTIONS = {
 # ФУНКЦІЯ ГРІНА  G(s, s')
 
 def green(x1, x2, t, x1s, x2s, ts, c, eps=1e-3):
-    # Примусово конвертуємо у numpy (вирішує 'float has no ndim')
+
     x1 = np.asarray(x1, dtype=float)
     x2 = np.asarray(x2, dtype=float)
     t  = np.asarray(t,  dtype=float)
@@ -161,7 +161,7 @@ def reconstruct(x1_grid, x2_grid, t_val, srcs, u, c):
 def accuracy(Y_exact, Y_model):
     
     diff     = Y_exact - Y_model
-    norm_abs = np.sqrt(np.mean(diff**2))        # RMS-норма
+    norm_abs = np.sqrt(np.mean(diff**2))      
     norm_ref = np.sqrt(np.mean(Y_exact**2))
     norm_rel = (norm_abs / norm_ref * 100) if norm_ref > 1e-14 else 0.0
     max_err  = np.max(np.abs(diff))
