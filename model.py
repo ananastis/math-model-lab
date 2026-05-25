@@ -124,7 +124,7 @@ def make_sources(x1a, x1b, x2a, x2b, M, T_ext=3.0):
     """
     n    = max(2, int(np.ceil(np.sqrt(M))))
     srcs = []
-    dx1  = (x1b - x1a) * 0.05          # невеликий відступ за межі
+    dx1  = (x1b - x1a) * 0.2          # невеликий відступ за межі
     dx2  = (x2b - x2a) * 0.05
     x1s  = np.linspace(x1a - dx1, x1b + dx1, n)
     x2s  = np.linspace(x2a - dx2, x2b + dx2, n)
