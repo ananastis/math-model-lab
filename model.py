@@ -40,27 +40,17 @@ TEST_FUNCTIONS = {
 # 2. ФУНКЦІЯ ГРІНА  G(s, s')
 # ──────────────────────────────────────────────
 
-def green(x1, x2, t, x1s, x2s, ts, c):
-    """
-    Функція Гріна хвильового рівняння в R²:
-      G(s, s') = H(t-t' - r/c) / (2πc·√(c²(t-t')² - r²))
-    де r = √((x1-x1')² + (x2-x2')²)
-
-    Повертає 0 якщо поза світловим конусом.
-    """
-    x1  = np.asarray(x1,  dtype=float)
-    x2  = np.asarray(x2,  dtype=float)
-    t   = np.asarray(t,   dtype=float)
+def green(x1, x2, t, x1s, x2s, ts, c, eps=1e-3):  # eps збільшено!
     dt   = t - float(ts)
     r2   = (x1 - float(x1s))**2 + (x2 - float(x2s))**2
     disc = c**2 * dt**2 - r2
 
-    if x1.ndim == 0:               # scalar call
-        if float(dt) <= 1e-12 or float(disc) <= 1e-12:
+    if x1.ndim == 0:
+        if float(dt) <= 0 or float(disc) <= eps:  # eps замість 1e-12
             return 0.0
         return float(1.0 / (2.0 * np.pi * c * np.sqrt(float(disc))))
-    else:                          # array call
-        mask = (dt > 1e-12) & (disc > 1e-12)
+    else:
+        mask = (dt > 0) & (disc > eps)
         out  = np.zeros(x1.shape, dtype=float)
         out[mask] = 1.0 / (2.0 * np.pi * c * np.sqrt(disc[mask]))
         return out
@@ -111,19 +101,26 @@ def make_observations(fn, c, x1a, x1b, x2a, x2b, T, R0, Rg):
 # ──────────────────────────────────────────────
 
 def make_sources(x1a, x1b, x2a, x2b, M, T_ext=3.0):
+    """
+    Джерела ПОЗА просторовою областю + різні часові шари
+    """
     srcs = []
-    n_space = max(2, int(np.ceil(np.sqrt(M / 3))))
-    t_layers = [-T_ext, -T_ext * 0.5, -T_ext * 0.2]  # 3 часових шари
+    n = max(2, int(np.ceil(np.sqrt(M))))
     
-    x1s = np.linspace(x1a, x1b, n_space)
-    x2s = np.linspace(x2a, x2b, n_space)
+    # Розширена просторова область (джерела ззовні)
+    margin = 1.5
+    x1s = np.linspace(x1a - margin, x1b + margin, n)
+    x2s = np.linspace(x2a - margin, x2b + margin, n)
     
-    for t_src in t_layers:
+    t_layers = np.linspace(-T_ext, -0.5, 4)  # 4 часових шари
+    
+    for ts in t_layers:
         for x1 in x1s:
             for x2 in x2s:
                 if len(srcs) >= M:
-                    break
-                srcs.append({"x1": x1, "x2": x2, "t": t_src})
+                    return srcs[:M]
+                # Перевірка: джерело НЕ повинно бути сингулярним при t_plot
+                srcs.append({"x1": x1, "x2": x2, "t": ts})
     return srcs[:M]
 
 
