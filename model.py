@@ -67,7 +67,6 @@ def green(x1, x2, t, x1s, x2s, ts, c, eps=1e-3):
 
 def make_observations(fn, c, x1a, x1b, x2a, x2b, T, R0, Rg):
     obs = []
-    # — початкові (t = 0) —
     n = max(2, int(np.ceil(np.sqrt(R0))))
     x1_grid = np.linspace(x1a, x1b, n)
     x2_grid = np.linspace(x2a, x2b, n)
@@ -78,24 +77,17 @@ def make_observations(fn, c, x1a, x1b, x2a, x2b, T, R0, Rg):
             val = fn(x1, x2, 0.0, c)
             obs.append({"type":"init", "x1":x1, "x2":x2, "t":0.0, "Y":val})
 
-    # — крайові: всі 4 сторони —
     n_b = max(2, Rg // 4)
-    n_t = max(3, Rg // 2)  # ← більше точок по часу
-    t_grid = np.linspace(0, T, n_t)
-    
+    t_grid = np.linspace(0, T, n_b)
     for t_ in t_grid:
         for x2 in np.linspace(x2a, x2b, n_b):
-            obs.append({"type":"bound", "x1":x1a, "x2":x2, "t":t_,
-                        "Y": fn(x1a, x2, t_, c)})
+            obs.append({"type":"bound", "x1":x1a, "x2":x2, "t":t_, "Y": fn(x1a, x2, t_, c)})
         for x2 in np.linspace(x2a, x2b, n_b):
-            obs.append({"type":"bound", "x1":x1b, "x2":x2, "t":t_,
-                        "Y": fn(x1b, x2, t_, c)})
+            obs.append({"type":"bound", "x1":x1b, "x2":x2, "t":t_, "Y": fn(x1b, x2, t_, c)})
         for x1 in np.linspace(x1a, x1b, n_b):
-            obs.append({"type":"bound", "x1":x1, "x2":x2a, "t":t_,
-                        "Y": fn(x1, x2a, t_, c)})
+            obs.append({"type":"bound", "x1":x1, "x2":x2a, "t":t_, "Y": fn(x1, x2a, t_, c)})
         for x1 in np.linspace(x1a, x1b, n_b):
-            obs.append({"type":"bound", "x1":x1, "x2":x2b, "t":t_,
-                        "Y": fn(x1, x2b, t_, c)})
+            obs.append({"type":"bound", "x1":x1, "x2":x2b, "t":t_, "Y": fn(x1, x2b, t_, c)})
 
     Y = np.array([o["Y"] for o in obs])
     return obs, Y
