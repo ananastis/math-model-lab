@@ -106,27 +106,31 @@ def make_observations(fn, c, x1a, x1b, x2a, x2b, T, R0, Rg):
 # ТОЧКИ ДЖЕРЕЛ  s'm  (зовнішня область t < 0)
 
 def make_sources(x1a, x1b, x2a, x2b, M, c=1.0, T=1.0):
+
+    r_max = np.sqrt((x1b - x1a)**2 + (x2b - x2a)**2)
+    T_ext = r_max / c + T + 1.0
+
     srcs = []
-    
-    # 1. Фіксуємо 4 часові шари, але розміщуємо їх набагато ближче до t=0
-    t_layers = np.linspace(-1.0, -0.1, 4)
-    
-    # 2. Рахуємо, скільки джерел має бути на одному часовому шарі
-    M_per_layer = max(1, M // len(t_layers))
-    n = max(2, int(np.ceil(np.sqrt(M_per_layer))))
-    
+
+    n = max(2, int(np.ceil(np.sqrt(M))))
     margin = 0.5
+
     x1s = np.linspace(x1a - margin, x1b + margin, n)
     x2s = np.linspace(x2a - margin, x2b + margin, n)
-    
-    # 3. Рівномірно розподіляємо джерела 
+
+    t_layers = np.linspace(-T_ext, -T_ext * 0.3, 4)
+
+
     for ts in t_layers:
         for x1 in x1s:
             for x2 in x2s:
+
                 if len(srcs) >= M:
+
                     return srcs[:M]
-                srcs.append({"x1": float(x1), "x2": float(x2), "t": float(ts)})
-                
+
+                srcs.append({"x1": x1, "x2": x2, "t": float(ts)})
+
     return srcs[:M]
 
 # МАТРИЦЯ A  та псевдообернення
