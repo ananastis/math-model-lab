@@ -11,10 +11,21 @@ import numpy as np
 
 
 # ТЕСТОВІ ФУНКЦІЇ y(x1, x2, t)
+def y_simple_standing(x1, x2, t, c):
+    """Проста стояча хвиля лише вздовж осі x1. Точно задовольняє L(y)=0"""
+    return np.sin(x1) * np.cos(c * t)
 
+def y_simple_traveling(x1, x2, t, c):
+    """Проста рухома хвиля вздовж осі x1. Точно задовольняє L(y)=0"""
+    return np.sin(x1 - c * t)
+
+def y_linear(x1, x2, t, c):
+    """Найпростіша лінійна функція. Усі другі похідні дорівнюють нулю, отже L(y)=0"""
+    return x1 + x2 + c * t
+    
 def y_sin_cos(x1, x2, t, c):
     """sin(x1)·cos(x2)·cos(c·t)  — точно задовольняє L(y)=0"""
-    return np.sin(x1) * np.cos(x2) * np.cos(c * t)
+    return np.sin(x1) * np.cos(x2) * np.cos(c * t * np.sqrt(2))
 
 def y_gauss(x1, x2, t, c):
     """exp(-(x1²+x2²))·cos(c·t)"""
@@ -29,6 +40,9 @@ def y_poly(x1, x2, t, c):
     return x1**2 * x2 * np.cos(t)
 
 TEST_FUNCTIONS = {
+    "simple_stand": (y_simple_standing,  "sin(x1)·cos(c·t)"),
+    "simple_travel": (y_simple_traveling, "sin(x1 - c·t)"),
+    "linear":       (y_linear,           "x1 + x2 + c·t"),
     "sin_cos": (y_sin_cos, "sin(x1)·cos(x2)·cos(c·t)"),
     "gauss":   (y_gauss,   "exp(-(x1²+x2²))·cos(c·t)"),
     "wave":    (y_wave,    "cos(x1+x2)·cos(c·t·√2)"),
