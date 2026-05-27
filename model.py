@@ -113,7 +113,7 @@ def make_sources(x1a, x1b, x2a, x2b, M, c=1.0, T=1.0):
     srcs = []
 
     # Фіксуємо 4 шари: від -T_ext до шару зовсім поруч з t=0
-    t_layers = np.linspace(-T_ext, -0.1, 4)
+    t_layers = np.linspace(-T_ext, -1.0, 4)
 
     M_per_layer = max(1, M // len(t_layers))
     
